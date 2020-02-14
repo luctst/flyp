@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flyp</title>
+    <style>
+        .space {
+            background-image: url("./img/fond.png");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+        }
+    </style>
+</head>
+
+<body style="margin:0;overflow: hidden;">
+    <img src="./img/rocket.png" width="100" height="100">
+    <img src="./img/satellite.png" width="100" height="100">
+    <img src="./img/ufo.png" width="100" height="100">
+    <canvas style="width:100vw;height:100vh;"></canvas>
+    <script>
+        const images = ["rocket.png", "satellite.png", "ufo.png"];
+
+        class Particle {
+            constructor(params) {
+                this.tailleBalle = params.size || 5;
+                this.speedX = params.speedX || 0;
+                this.speedY = params.speedY || 0;
+                this.context = params.context;
+                this.x = params.x;
+                this.y = params.y;
+                this.src = params.image[Math.floor(Math.random() * params.image.length)];
+                var r = getRndInteger(0, 255);
+                var g = getRndInteger(0, 255);
+                var b = getRndInteger(0, 255);
+                this.color = "rgb(" + r + ", " + g + ", " + b + ")";
+            }
+            move() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.draw();
+                var a = getRndInteger(-1, 1);
+                var b = getRndInteger(-1, 1);
+                this.speedX += a;
+                this.speedY += b;
+                //A l'avenir, utiliser case
+                if (this.x <= this.tailleBalle) {
+                    this.speedX *= -1;
+                    this.x = 1 + this.tailleBalle;
+                }
+                if (this.x >= 300 - this.tailleBalle) {
+                    this.speedX *= -1;
+                    this.x = 300 - this.tailleBalle;
+                }
+                if (this.y >= 500 - this.tailleBalle) {
+                    this.speedY *= -1;
+                    this.y = 500 - this.tailleBalle;
+                }
+                if (this.y <= this.tailleBalle) {
+                    this.speedY *= -1;
+                    this.y = 1 + this.tailleBalle;
+                }
+                if (this.speedX >= 10) {
+                    this.speedX /= 5;
+                }
+                if (this.speedY >= 10) {
+                    this.speedY /= 5;
+                }
+            }
+            draw() {
+                this.context.beginPath();
+                this.context.fillStyle = this.color;
+                this.context.shadowColor = this.color;
+                this.context.shadowBlur = 20;
+                // this.context.arc(this.x, this.y, this.tailleBalle, 0, Math.PI * 2);
+                this.context.fill();
+                this.context.closePath();
+            }
+        }
+        // 9 h 31
+        function getRndInteger(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        window.addEventListener('load', function () {
+            var canvas = document.querySelector('canvas');
+            var context = canvas.getContext('2d');
+
+            document.querySelector("body").classList.add("space");
+            canvas.height = 500;
+            canvas.width = 300;
+            var particles = [];
+            
+            for (var i = 0; i < 5; i++) {
+                var a = getRndInteger(-0, 3);
+                var b = getRndInteger(-0, 3);
+                particles.push(new Particle({
+                    image: [...images],
+                    size: 5,
+                    speedX: a,
+                    speedY: b,
+                    x: 100,
+                    y: 100,
+                    context: context
+                }));
+            }
+            
+            animate();
+            function animate() {
+                //Clear de la frame
+                requestAnimationFrame(animate);
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                const imgArray = document.querySelectorAll("img");
+
+                particles.forEach((particle, index) => {
+                    imgArray[index].style = `position: absolute; top: ${ particle.x }px; left: ${ particle.y }px;`;
+
+                    particle.move();
+                })
+            }
+        });
+    </script>
+</body>
+
+</html>
